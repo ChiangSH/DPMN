@@ -1,0 +1,12 @@
+#python osmn_coco_pretrain.py --data_path /home/jiangsihao/video_seg-master/MS_COCO/ --model_save_path /home/jiangsihao/video_seg/models/coco/ --training_iters 100000 --batch_size 16 --vis_mod_model_path /home/jiangsihao/video_seg/models/mobilenet_v1_1.0_224.ckpt --seg_model_path /home/jiangsihao/video_seg/models/mobilenet_v1_1.0_224.ckpt --base_model lite --learning_rate 2e-5
+#
+#python osmn_coco_pretrain.py --data_path /home/jiangsihao/video_seg-master/MS_COCO/ --model_save_path /home/jiangsihao/video_seg/models/coco/ --training_iters 150000 --learning_rate 2e-6 --batch_size 16 --vis_mod_model_path /home/jiangsihao/video_seg/models/mobilenet_v1_1.0_224.ckpt --seg_model_path /home/jiangsihao/video_seg/models/mobilenet_v1_1.0_224.ckpt --base_model lite
+#python osmn_coco_pretrain.py --data_path /home/jiangsihao/video_seg-master/MS_COCO/ --model_save_path /home/jiangsihao/video_seg-master/models/ --training_iters 350000 --learning_rate 1e-7 --batch_size 8
+#
+#python osmn_train_eval_ytvos.py --data_path /home/jiangsihao/video_seg-master/youtubevos/ --whole_model_path /home/jiangsihao/video_seg/models/coco/osmn.ckpt-300000 --result_path /home/jiangsihao/video_seg-master/youtubevos/results/ --model_save_path /home/jiangsihao/video_seg/models/you/ --batch_size 8 --training_iters 200000 --learning_rate 1e-6 --base_model lite
+#
+#python osmn_train_eval_ytvos.py --data_path /home/jiangsihao/video_seg-master/youtubevos/ --whole_model_path /home/jiangsihao/video_seg/models/coco/osmn.ckpt-300000 --result_path /home/jiangsihao/video_seg-master/youtubevos/results/ --model_save_path /home/jiangsihao/video_seg/models/you/ --batch_size 8 --training_iters 300000 --learning_rate 1e-7 --base_model lite
+
+python osmn_train_eval.py --data_path /home/jiangsihao/video_seg-master/DAVIS/ --whole_model_path /home/jiangsihao/video_seg/models/coco/osmn.ckpt-149000 --result_path /home/jiangsihao/video_seg-master/DAVIS/Results/ --model_save_path /home/jiangsihao/video_seg-master/models/parent/ --batch_size 8 --fix_bn --training_iters 30000 --learning_rate 2e-6 --save_iters 500 --base_model lite
+#
+python osmn_train_eval.py --data_path /home/jiangsihao/video_seg-master/DAVIS/ --whole_model_path /home/jiangsihao/video_seg/models/coco/osmn.ckpt-149000 --result_path /home/jiangsihao/video_seg-master/DAVIS/Results/ --model_save_path /home/jiangsihao/video_seg-master/models/parent/ --batch_size 8 --fix_bn --training_iters 50000 --learning_rate 2e-6 --save_iters 500 --base_model lite
