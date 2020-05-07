@@ -1,6 +1,6 @@
-# OSMN: One-Shot Modulation Network for Semi-supervised Video Segmentation
+# DPMN:基于OSMN的改进视频目标分割算法
 
-This repo is the released code of one-shot modulation network described in the CVPR 2018 paper:
+OSMN参考如下引用信息:
 ```
 @article{ Yang2018osmn,
   author = {Linjie Yang and Yanran Wang and Xuehan Xiong and Jianchao Yang and Aggelos K. Katsaggelos},  
@@ -9,74 +9,54 @@ title = {Efficient Video Object Segmentation via Network Modulation},
   year = {2018}
 }
 ```
-In this work, we propose to use a meta neural network named modulator to manipulate the intermediate layers of the segmentation network given the appearance of the object in the first frame. Our method only takes 140ms/frame for inference on DAVIS dataset.
+#In this work, we propose to use a meta neural network named modulator to manipulate the intermediate layers of the segmentation network given the appearance of the object in the first frame. Our method only takes 140ms/frame for inference on DAVIS dataset.
 
-<img src='doc/ims/model_structure.png'>
+#<img src='doc/ims/model_structure.png'>
 
-## Installation
-1. Clone the repository
+## 安装
+1. 下载代码命令如下
    ```Shell
-   git clone https://github.com/linjieyangsc/video_seg.git
+   git clone https://github.com/ChiangSH/DPMN.git
    ```
-2. Install if necessary the required dependencies:
+2. 安装环境如下:
    
-   - Python 2.7 
+   - Python 3.5 
    - Tensorflow r1.0 or higher (`pip install tensorflow-gpu`) along with standard [dependencies](https://www.tensorflow.org/install/install_linux)
    - Densecrf by [Philipp Krähenbühl and Vladlen Koltun](https://github.com/lucasb-eyer/pydensecrf)
    - Other python dependencies: PIL (Pillow version), numpy, scipy
    
 
-## Training on DAVIS
+## 离线训练
 
-### Stage 1: Training the network on MS-COCO
-1. Download MS-COCO 2017 dataset from [here](http://cocodataset.org/#download).
-2. Download the VGG 16 model trained on Imagenet from the TF model zoo from [here](http://download.tensorflow.org/models/vgg_16_2016_08_28.tar.gz).
-3. Place the vgg_16.ckpt file inside `models/`.
-4. Run `python osmn_coco_pretrain.py --data_path DATA_PATH --model_save_path MODEL_SAVE_PATH --gpu_id GPU_ID --training_iters 200000` to train the model with a default learning rate 1e-5. After it finishes, run `python osmn_coco_pretrain.py --data_path DATA_PATH --model_save_path MODEL_SAVE_PATH --gpu_id GPU_ID --training_iters 300000 --learning_rate 1e-6` to further train it with a decreased learning rate. Be sure to keep `MODEL_SAVE_PATH` the same as in the first step to restore from existing checkpoint.
-For reference to other arguments, please check them by running `python osmn_coco_pretrain.py -h`.
+### Stage 1: 在MS-COCO上进行第一步离线训练
+1. 下载 MS-COCO 2017 数据集 [here](http://cocodataset.org/#download).
+2. 下载 VGG 16 模型 [here](http://download.tensorflow.org/models/vgg_16_2016_08_28.tar.gz).
+3. 将 vgg_16.ckpt 文件放入 `models/`.
+4. 执行命令 `python osmn_coco_pretrain.py --data_path DATA_PATH --model_save_path MODEL_SAVE_PATH --gpu_id GPU_ID --training_iters 200000` ，默认学习率为 1e-5 ；
+   然后执行命令 `python osmn_coco_pretrain.py --data_path DATA_PATH --model_save_path MODEL_SAVE_PATH --gpu_id GPU_ID --training_iters 300000 --learning_rate 1e-6` 来进行更深的训练；
+   确保 `MODEL_SAVE_PATH` 的路径一致
+   参数解释可执行命令 `python osmn_coco_pretrain.py -h`.
 
-### Stage 2: Fine-tuning the network on DAVIS
-1. Download DAVIS 2017 dataset from [here](http://davischallenge.org/code.html).
-2. Preprocess the dataset by running `python preprocessing/preprocess_davis.py DATA_DIR`.
-3. To finetune and evaluate the model on DAVIS 2017 as stated in the paper, run `python osmn_train_eval.py --data_path DATA_PATH --whole_model_path WHOLE_MODEL_PATH --result_path RESULT_PATH --model_save_path MODEL_SAVE_PATH_FT --gpu_id GPU_ID --batch_size 4 --fix_bn --randomize_guide --training_iters 50000 --learning_rate 1e-6`. Here `WHOLE_MODEL_PATH` should be the path to the model saved by Stage 1 training. Other arguments can be seen by running `python osmn_train_eval.py -h`. After it finishes, the prediction result on DAVIS 2017 will be saved into `RESULT_PATH`.
+### Stage 2: 在DAVIS上进行微调离线训练
+1. 下载DAVIS 2017 数据集 [here](http://davischallenge.org/code.html).
+2. 执行数据预处理命令 `python preprocessing/preprocess_davis.py DATA_DIR`.
+3. 执行命令 `python osmn_train_eval.py --data_path DATA_PATH --whole_model_path WHOLE_MODEL_PATH --result_path RESULT_PATH --model_save_path MODEL_SAVE_PATH_FT --gpu_id GPU_ID --batch_size 4 --fix_bn --randomize_guide --training_iters 50000 --learning_rate 1e-6`.
+ 这里的 `WHOLE_MODEL_PATH` 与 Stage 1 一致. 结果保存在 `RESULT_PATH`.
 
-### One-shot finetuning on DAVIS
-1. The trained model can be further improved by online one-shot finetuning on specific video sequences. Run the following command to finetune the model on either DAVIS 2016 or 2017.
+### 在DAVIS上进行在线微调
+执行命令
 ```
 python osmn_online_finetune.py --whole_model_path WHOLE_MODEL_PATH --result_path RESULT_PATH --model_save_path MODEL_SAVE_PATH_OL --gpu_id GPU_ID --batch_size 1 --training_iters 100 --data_version [2016/2017]
 ```
 
-## Evaluation
-1. To evaluate either Stage 1 or 2 model on DAVIS. Please run the following command.
+## 评估
+1. 执行生成测试结果命令
 ```
 python osmn_train_eval.py --data_path DATA_PATH --whole_model_path WHOLE_MODEL_PATH --result_path RESULT_PATH --only_testing --data_version [2016/2017] --gpu_id GPU_ID [--save_score] [--use_full_res]
 ```
-`--save_score` need to be set while testing on DAVIS 2017, which is required to combined score maps of different objects for final prediction. `--use_full_res` is to use full resolution images for inference, which can be beneficial when visual guide is small.
-Then run the following command to get the mIU score.
+`--save_score` 仅在 DAVIS 2017测试时使用。`--use_full_res` 表示使用全分辨率的图片来进行测试。
+2. 得到mIOU结果：
 ```
 python davis_eval.py DATA_PATH RESULT_PATH DATASET_VERSION DATASET_SPLIT
 ```
-2. To evaluate the model on [Youtube Objects](http://vision.cs.utexas.edu/projects/videoseg/). First download the dataset, then preprocess the dataset by running `python preprocessing/preprocess_youtube.py DATA_DIR`. Then evaluate the model.
-```
-python osmn_eval_youtube.py --data_path DATA_PATH --whole_model_path WHOLE_MODEL_PATH --result_path RESULT_PATH --gpu_id GPU_ID 
-```
-Then use the following command to get the mIU score.
-```
-python youtube_eval.py DATA_PATH RESULT_PATH
-```
-3. We release official model for both Stage 1 and 2, which can be downloaded from [here](https://www.dropbox.com/sh/6i5mgicuzmhart2/AACMO_C5guWcRHUD8K3ZHCV9a?dl=0). The Stage 1 model obtains mIU 72.2 on DAVIS 2016 and 52.5 on DAVIS 2017. The Stage 2 model obtains mIU 74.0 on DAVIS 2016.
 
-## Training on YoutubeVOS
-YoutubeVOS (https://youtube-vos.org/) is currently the largest video object segmentation dataset. To train and evaluate the model on YoutubeVOS, run `python osmn_train_eval_ytvos.py --data_path DATA_PATH --result_path RESULT_PATH --model_save_path MODEL_SAVE_PATH --gpu_id GPU_ID --batch_size BATCH_SIZE --randomize_guide --training_iters 200000`. After it finishes, further train the model with a decreased learning rate `1e-6` for 100k iterations. 
-To evaluate the model, run the following command to generate results for each object.
-```
-python osmn_train_eval_ytvos.py --data_path DATA_PATH --whole_model_path WHOLE_MODEL_PATH --result_path RESULT_PATH --only_testing --gpu_id GPU_ID --save_score
-```
-Then use the script `ytvos_merge_result.py` to merge objects in the same video:
-```
-python ytvos_merge_result.py DATA_PATH PRED_PATH OUTPUT_PATH DATA_SPLIT
-```
-Finally upload the results to Codalab website of the ECCV challenge.
-
-## Contact ##
-If you have any questions regarding the repo, please send email to Linjie Yang (linjie.yang@snap.com). 
