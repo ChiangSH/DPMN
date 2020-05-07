@@ -9,9 +9,9 @@ title = {Efficient Video Object Segmentation via Network Modulation},
   year = {2018}
 }
 ```
-#In this work, we propose to use a meta neural network named modulator to manipulate the intermediate layers of the segmentation network given the appearance of the object in the first frame. Our method only takes 140ms/frame for inference on DAVIS dataset.
+# 算法结构图
 
-#<img src='doc/ims/model_structure.png'>
+<img src='doc/ims/dpmn.png'>
 
 ## 安装
 1. 下载代码命令如下
